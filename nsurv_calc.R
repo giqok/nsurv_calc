@@ -1,4 +1,3 @@
-library(tidyr)
 library(dplyr)
 
 nsurv_calc <- function(df,
