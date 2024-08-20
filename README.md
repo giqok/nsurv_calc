@@ -10,7 +10,6 @@ Note that replicates mean within treatment replicates, and not an integer repres
 Provide the column names for observed survivors, these will be summed together to a grand total number of survivors in 'survivor_columns = '. 
 Likewise, provide the column names for observed dead (or immobilized in case of non-recovery) in 'dead_columns = '.
 In case of a single survival or dead column, provide a simple string, otherwise a list of strings.
-If there is a compartment sink for individuals that have grown out of or entered into that you'd like to not be counted, provide a list of these column names in 'sink_columns = '.
 Set 'initial_population = ' to the column name of initial population counts in case you want to assume the first count is identical to the number of individuals introduced at the beginning of the experiment, otherwise this is estimated from the maximum known living count (see assumption one).
 
 ## Function output
