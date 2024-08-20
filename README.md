@@ -30,7 +30,7 @@ The second assumption defines an upper limit on how many dead we accept in calcu
 This method also covers the case when the dead are removed or otherwise not counted in future observations.
 The expected dead count is the minimum of cumulative observed dead and maximum total number of potential dead as defined in the second assumption.
 
-As a corollary, the number of known living and number of expected dead together is never higher than the initial population.
+As a corollary, the number of known living and number of expected dead together is never higher than the initial population (or max known survivors).
 
 The final Nsurv is calculated as initial population minus the expected dead count at every time point. 
 
