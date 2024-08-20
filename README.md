@@ -41,7 +41,7 @@ Initial survivors, $S_0=S(t_0)$ is either given by the column 'initial_populatio
 Similarly, the dead observed, $D_i$, is the sum of all compartments observed across the 'dead_columns'.
 The known survivors, $SK$, at time $t_j$ is calculated as
 
-$$SK(t_j)=max_{j\leq i \leq n}S_i$$
+$$SK(t_j)=\max_{j\leq i \leq n}S_i$$
 
 and the maximum potential dead, $DP$ at time $t_j$ is calculated as
 
