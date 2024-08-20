@@ -41,13 +41,75 @@ Survivors observed at time $t_i$, $S_i=S(t_i)$, is the sum of all compartments o
 Initial survivors, $S_0=S(t_0)$ is either given by the column 'initial_population' or taken as the max $S_0=\max_{i}SK(t_i)$, where $SK$ is defined below.
 Similarly, the dead observed, $D_i$, is the sum of all compartments observed across the 'dead_columns'.
 The known survivors, $SK$, at time $t_j$ is calculated as
+
 $$SK(t_j)=max_{j\leq i \leq n}S_i$$
+
 and the maximum potential dead, $DP$ at time $t_j$ is calculated as
+
 $$DP(t_j)=S_0-SK(t_j).$$
+
 This becomes the upper bound we compare the cumulative sum of observed dead, calculated as
+
 $$DOS(t_j) = \sum_{i=0}^{j}D_i$$
+
 which gives us the expected dead
+
 $$DE(t_j) = \min(DOS(t_j), DP(t_j)).$$
+
 The final survival count, $Nsurv$, at each time $t_j$ is calculated by 
+
 $$Nsurv(t_j) = S_0-DE(t_j)$$
+
 which is then returned as a new column on the given data.frame.
+
+## The code
+```
+library(dplyr)
+
+nsurv_calc <- function(df,
+                       treatment,
+                       replicate,
+                       time,
+                       survivor_columns,
+                       dead_columns,
+                       initial_population) {
+  out_df <- df |>  # Rowwise summation across provided columns
+    mutate(total_surv = rowSums(df |>
+                                  select(all_of(survivor_columns)), na.rm = TRUE)) |>
+    mutate(total_dead = rowSums(df |>
+                                  select(all_of(dead_columns)), na.rm = TRUE)) |>
+    arrange(treatment, replicate, time)  # order for cumulative calculations
+  
+  out_df <- out_df |>  # group and calculate cumulative values
+    group_by(.data[[treatment]], .data[[replicate]]) |>
+    mutate(known_survivors = rev(cummax(rev(total_surv)))) |>
+    mutate(sum_of_dead = cumsum(total_dead))
+  
+  if (exists('initial_population')) {
+    # use an initial population column
+    out_df <- out_df |>
+      mutate(max_possible_dead =
+               pmax(0, .data[[initial_population]] - known_survivors)) |>
+      mutate(expected_dead = pmin(max_possible_dead, sum_of_dead)) |>
+      mutate(Nsurv = .data[[initial_population]] - expected_dead)
+  } else {
+    # Otherwise use max known_survivors
+    out_df <- out_df |>
+      mutate(max_possible_dead = max(known_survivors) - known_survivors) |>
+      mutate(expected_dead = pmin(max_possible_dead, sum_of_dead)) |>
+      mutate(Nsurv = max(known_survivors) - expected_dead)
+  }
+  
+  return(
+    out_df |>
+      select(
+        -expected_dead,
+        -max_possible_dead,
+        -sum_of_dead,
+        -known_survivors,
+        -total_surv,
+        -total_dead
+      )
+  )
+}
+```
